@@ -64,7 +64,7 @@ export function TodoIndex() {
           </Link>
         </div>
         <h2>Todos List</h2>
-        {todos ? <TodoList todos={todos} onRemoveTodo={onRemoveTodo} onToggleTodo={onToggleTodo} /> : <div>no todos to show </div>}
+        {todos.length ? <TodoList todos={todos} onRemoveTodo={onRemoveTodo} onToggleTodo={onToggleTodo} /> : <p>no todos to show </p>}
         <hr />
         <h2>Todos Table</h2>
         <div style={{ width: '60%', margin: 'auto' }}>
