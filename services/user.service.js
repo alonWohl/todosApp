@@ -7,10 +7,11 @@ export const userService = {
   signup,
   getById,
   query,
-  getEmptyCredentials,
-  addActivity,
   updateBalance,
-  update
+  getEmptyCredentials,
+  updateUserPreffs,
+  getDefaultPrefs,
+  addActivity
 }
 const STORAGE_KEY_LOGGEDIN = 'user'
 const STORAGE_KEY = 'userDB'
@@ -32,11 +33,15 @@ function login({ username, password }) {
 }
 
 function signup({ username, password, fullname }) {
-  const user = { username, password, fullname }
+  const user = {
+    username,
+    password,
+    fullname,
+    balance: 10000,
+    activities: [],
+    pref: getDefaultPrefs()
+  }
   user.createdAt = user.updatedAt = Date.now()
-  user.balance = 10000
-  user.activities = []
-
   return storageService.post(STORAGE_KEY, user).then(_setLoggedinUser)
 }
 
@@ -49,66 +54,79 @@ function getLoggedinUser() {
   return JSON.parse(sessionStorage.getItem(STORAGE_KEY_LOGGEDIN))
 }
 
-function _setLoggedinUser(user) {
-  const userToSave = {
-    _id: user._id,
-    fullname: user.fullname,
-    balance: user.balance,
-    activities: user.activities || [],
-    prefs: user.prefs || { color: '#000', bgColor: '#ffff' }
+function getEmptyCredentials() {
+  return {
+    fullname: 'Admin Adminov',
+    username: 'admin',
+    password: 'admin'
+  }
+}
+
+function updateBalance(diff) {
+  // return
+  const loggedinUser = getLoggedinUser()
+  if (!loggedinUser) return
+  return getById(loggedinUser._id).then(user => {
+    user.balance += diff
+    return storageService.put(STORAGE_KEY, user).then(user => {
+      _setLoggedinUser(user)
+      return user.balance
+    })
+  })
+}
+
+function updateUserPreffs(userToUpdate) {
+  const loggedinUserId = getLoggedinUser()._id
+  return getById(loggedinUserId).then(user => {
+    user = { ...user, ...userToUpdate }
+    return storageService.put(STORAGE_KEY, user).then(savedUser => {
+      _setLoggedinUser(savedUser)
+      return savedUser
+    })
+  })
+}
+
+function addActivity(txt) {
+  const activity = {
+    txt,
+    at: Date.now()
   }
 
+  const loggedinUser = getLoggedinUser()
+  if (!loggedinUser) return Promise.reject('No loggedin user')
+  return getById(loggedinUser._id)
+    .then(user => {
+      if (!user.activities) user.activities = []
+      user.activities.unshift(activity)
+      return user
+    })
+    .then(userToUpdate => {
+      return storageService.put(STORAGE_KEY, userToUpdate).then(savedUser => {
+        _setLoggedinUser(savedUser)
+        return savedUser
+      })
+    })
+}
+
+function getDefaultPrefs() {
+  return { color: '#eeeeee', bgColor: '#191919', fullname: '' }
+}
+
+function _setLoggedinUser(user) {
+  const userToSave = { _id: user._id, fullname: user.fullname, balance: user.balance, pref: user.pref, activities: user.activities }
   sessionStorage.setItem(STORAGE_KEY_LOGGEDIN, JSON.stringify(userToSave))
   return userToSave
 }
 
-function getEmptyCredentials() {
-  return {
-    fullname: '',
-    username: 'muki',
-    password: 'muki1'
-  }
-}
+// signup({username: 'muki', password: 'muki1', fullname: 'Muki Ja'})
+// login({username: 'muki', password: 'muki1'})
 
-function addActivity(activityTxt) {
-  const loggedInUserId = getLoggedinUser()._id
-  return userService
-    .getById(loggedInUserId)
-    .then(user => {
-      const activity = { txt: activityTxt, at: Date.now() }
-      user.activities.push(activity)
-
-      return storageService.put(STORAGE_KEY, user)
-    })
-    .then(user => {
-      _setLoggedinUser(user)
-      return user
-    })
-}
-
-function updateBalance(amount) {
-  const loggedInUserId = getLoggedinUser()._id
-  return userService
-    .getById(loggedInUserId)
-    .then(user => {
-      user.balance += amount
-      return storageService.put(STORAGE_KEY, user)
-    })
-    .then(user => {
-      _setLoggedinUser(user)
-      return user.balance
-    })
-}
-
-function update(userToUpdate) {
-  const loggedInUserId = getLoggedinUser()._id
-  return getById(loggedInUserId)
-    .then(user => {
-      const updatedUser = { ...user, ...userToUpdate }
-      return storageService.put(STORAGE_KEY, updatedUser)
-    })
-    .then(user => {
-      _setLoggedinUser(user)
-      return user
-    })
-}
+// Data Model:
+// const user = {
+//     _id: "KAtTl",
+//     username: "muki",
+//     password: "muki1",
+//     fullname: "Muki Ja",
+//     createdAt: 1711490430252,
+//     updatedAt: 1711490430999
+// }

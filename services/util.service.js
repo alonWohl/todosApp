@@ -5,7 +5,8 @@ export const utilService = {
   loadFromStorage,
   saveToStorage,
   animateCSS,
-  debounce
+  debounce,
+  getFormattedTime
 }
 
 function makeId(length = 6) {
@@ -96,4 +97,12 @@ function debounce(func, timeout = 300) {
       func.apply(this, args)
     }, timeout)
   }
+}
+
+function getFormattedTime(at) {
+  const timeDiff = new Date(Date.now() - at)
+  const atByMin = timeDiff.getMinutes()
+  if (atByMin < 60) return atByMin + ' minutes ago | '
+  else if (atByMin > 60) return 'Couple of hours ago | '
+  else if (atByMin > 60 * 24) return 'A day or more ago | '
 }

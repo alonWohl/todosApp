@@ -3,27 +3,23 @@ import { TodoList } from '../cmps/TodoList.jsx'
 import { DataTable } from '../cmps/data-table/DataTable.jsx'
 import { todoService } from '../services/todo.service.js'
 import { showErrorMsg, showSuccessMsg } from '../services/event-bus.service.js'
-import { loadTodos, removeTodo, toggleTodo } from '../store/actions/todo.actions.js'
+import { loadTodos, removeTodo, saveTodo } from '../store/actions/todo.actions.js'
 import { AppLoader } from '../cmps/AppLoader.jsx'
+import { changeBalance } from '../store/actions/user.actions.js'
+import { SET_FILTER } from '../store/reducers/todo.reducer.js'
 
 const { useState, useEffect } = React
-const { useSelector } = ReactRedux
+const { useSelector, useDispatch } = ReactRedux
 const { Link, useSearchParams } = ReactRouterDOM
 
 export function TodoIndex() {
-  const todos = useSelector(storeState => storeState.todos)
-  const isLoading = useSelector(storeState => storeState.isLoading)
+  const todos = useSelector(storeState => storeState.todoModule.todos)
+  const filterBy = useSelector(storeState => storeState.todoModule.filterBy)
 
-  // Special hook for accessing search-params:
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const defaultFilter = todoService.getFilterFromSearchParams(searchParams)
-
-  const [filterBy, setFilterBy] = useState(defaultFilter)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    setSearchParams(filterBy)
-    loadTodos(filterBy).catch(err => {
+    loadTodos().catch(err => {
       showErrorMsg('Cannot load todos')
     })
   }, [filterBy])
@@ -43,27 +39,32 @@ export function TodoIndex() {
   }
 
   function onToggleTodo(todo) {
-    toggleTodo(todo)
-      .then(savedTodo => {
-        showSuccessMsg(`Todo is ${savedTodo.isDone ? 'done' : 'back on your list'}`)
+    const todoToSave = { ...todo, isDone: !todo.isDone }
+    saveTodo(todoToSave)
+      .then(() => {
+        showSuccessMsg(`Updated ${todoToSave.txt} successfully`)
+        if (todoToSave.isDone) {
+          return changeBalance(10)
+        }
       })
-      .catch(err => {
-        console.log('err:', err)
-        showErrorMsg('Cannot toggle todo ' + todoId)
-      })
+      .catch(() => showErrorMsg('Had trouble updating the todo'))
+  }
+
+  function onSetFilterBy(filterBy) {
+    dispatch({ type: SET_FILTER, filterBy })
   }
 
   return (
     <React.Fragment>
-      {isLoading && <AppLoader />}
       <section className="todo-index">
-        <TodoFilter filterBy={filterBy} onSetFilterBy={setFilterBy} />
+        <TodoFilter filterBy={filterBy} onSetFilterBy={onSetFilterBy} />
         <div>
           <Link to="/todo/edit" className="btn">
             Add Todo
           </Link>
         </div>
         <h2>Todos List</h2>
+
         {todos.length ? <TodoList todos={todos} onRemoveTodo={onRemoveTodo} onToggleTodo={onToggleTodo} /> : <p>no todos to show </p>}
         <hr />
         <h2>Todos Table</h2>

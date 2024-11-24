@@ -1,96 +1,78 @@
-const { useSelector, useDispatch } = ReactRedux
-import { showSuccessMsg } from '../services/event-bus.service.js'
+const { useState, useEffect } = React
+const { useNavigate } = ReactRouterDOM
+const { useSelector } = ReactRedux
+import { ActivityList } from '../cmps/ActivityList.jsx'
+import { showErrorMsg, showSuccessMsg } from '../services/event-bus.service.js'
 import { updateUser } from '../store/actions/user.actions.js'
 
 export function UserDetails() {
-  const user = useSelector(state => state.loggedInUser)
-  const dispatch = useDispatch()
+  const loggedInUser = useSelector(storeState => storeState.userModule.user)
+  const [userDetails, setUserDetails] = useState(null)
+  const navigate = useNavigate()
+  console.log(loggedInUser)
 
-  function onSave(ev) {
-    ev.preventDefault()
-    const userToUpdate = {
-      fullname: user.fullname,
-      prefs: user.prefs
-    }
-    updateUser(userToUpdate).then(() => {
-      showSuccessMsg('Settings saved')
+  useEffect(() => {
+    if (loggedInUser) loadUser()
+  }, [])
+
+  function loadUser() {
+    setUserDetails({
+      fullname: loggedInUser.fullname || '',
+      color: loggedInUser.pref.color || '#eeeeee',
+      bgColor: loggedInUser.pref.bgColor || '#191919',
+      activities: loggedInUser.activities || []
     })
   }
 
-  function handlePrefChange({ target }) {
-    const field = target.name
-    const value = target.value
-
-    dispatch({
-      type: 'SET_USER',
-      user: {
-        ...user,
-        prefs: {
-          ...user.prefs,
-          [field]: value
-        }
-      }
-    })
+  function onEditUser(ev) {
+    ev.preventDefault()
+    const userToUpdate = {
+      fullname: userDetails.fullname,
+      pref: { color: userDetails.color, bgColor: userDetails.bgColor }
+    }
+    updateUser(userToUpdate)
+      .then(() => {
+        showSuccessMsg('User updated successfully!')
+      })
+      .catch(err => {
+        console.error('Cannot update user:', err)
+        showErrorMsg('Cannot update user')
+      })
   }
 
   function handleChange({ target }) {
     const field = target.name
-    const value = target.value
+    let value = target.value
 
-    dispatch({
-      type: 'SET_USER',
-      user: {
-        ...user,
-        [field]: value
-      }
-    })
+    switch (target.type) {
+      case 'number':
+      case 'range':
+        value = +value || ''
+        break
+
+      case 'checkbox':
+        value = target.checked
+        break
+    }
+    setUserDetails(prevUser => ({ ...prevUser, [field]: value }))
   }
 
-  function getActivityTimeAgo(at) {
-    const now = Date.now()
-    const diff = now - at
-
-    if (diff < 60000) return 'Just now'
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`
-    return `${Math.floor(diff / 86400000)} days ago`
-  }
-
-  if (!user) return <section>User not found.</section>
-
+  if (!loggedInUser || !userDetails) return <div>No user</div>
+  const { activities } = userDetails
   return (
-    <section style={{ color: user.prefs.color, backgroundColor: user.prefs.bgColor }}>
-      <h2>User Details</h2>
-      <form onSubmit={onSave}>
-        <div>
-          <label>
-            Full Name:
-            <input type="text" name="fullname" value={user.fullname} onChange={handleChange} placeholder="Enter your full name" />
-          </label>
-        </div>
-        <fieldset>
-          <legend>Preferences</legend>
-          <label>
-            Text Color:
-            <input type="color" name="color" value={user.prefs.color || '#000000'} onChange={handlePrefChange} />
-          </label>
-          <label>
-            Background Color:
-            <input type="color" name="bgColor" value={user.prefs.bgColor || '#ffffff'} onChange={handlePrefChange} />
-          </label>
-        </fieldset>
-        <button type="submit">Save</button>
+    <div className="container">
+      <h1>Profile</h1>
+      <form className="activities-form" onSubmit={onEditUser}>
+        <label htmlFor="fullname">Name:</label>
+        <input type="text" id="fullname" name="fullname" value={userDetails.fullname} onChange={handleChange} />
+        <label htmlFor="name">Color:</label>
+        <input type="color" name="color" value={userDetails.color} onChange={handleChange} />
+        <label htmlFor="name">BG Color:</label>
+        <input type="color" name="bgColor" value={userDetails.bgColor} onChange={handleChange} />
+        <button type="submit">save</button>
       </form>
-      <section>
-        <h3>Activities</h3>
-        <ul>
-          {user.activities.map((activity, idx) => (
-            <li key={idx}>
-              {getActivityTimeAgo(activity.at)}: {activity.txt}
-            </li>
-          ))}
-        </ul>
-      </section>
-    </section>
+
+      {activities && <ActivityList activities={activities} />}
+    </div>
   )
 }

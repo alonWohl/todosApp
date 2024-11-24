@@ -6,11 +6,11 @@ const { useNavigate } = ReactRouter
 import { UserMsg } from './UserMsg.jsx'
 import { LoginSignup } from './LoginSignup.jsx'
 import { showErrorMsg, showSuccessMsg } from '../services/event-bus.service.js'
-import { login, logout } from '../store/actions/user.actions.js'
+import { logout } from '../store/actions/user.actions.js'
 
 export function AppHeader() {
   const navigate = useNavigate()
-  const user = useSelector(storeState => storeState.loggedInUser)
+  const user = useSelector(storeState => storeState.userModule.user)
 
   function onLogout() {
     logout()
@@ -23,8 +23,22 @@ export function AppHeader() {
       })
   }
 
+  function getStyleByUser() {
+    const prefs = {
+      color: '',
+      backgroundColor: ''
+    }
+
+    if (user && user.pref) {
+      prefs.color = user.pref.color
+      prefs.backgroundColor = user.pref.bgColor
+    }
+
+    return prefs
+  }
+
   return (
-    <header className="app-header full main-layout">
+    <header style={getStyleByUser()} className="app-header full main-layout">
       <section className="header-container">
         <h1>React Todo App</h1>
         {user ? (
