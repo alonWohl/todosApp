@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 export const utilService = {
   makeId,
   makeLorem,
@@ -6,7 +8,8 @@ export const utilService = {
   saveToStorage,
   animateCSS,
   debounce,
-  getFormattedTime
+  getFormattedTime,
+  readJsonFile
 }
 
 function makeId(length = 6) {
@@ -105,4 +108,14 @@ function getFormattedTime(at) {
   if (atByMin < 60) return atByMin + ' minutes ago | '
   else if (atByMin > 60) return 'Couple of hours ago | '
   else if (atByMin > 60 * 24) return 'A day or more ago | '
+}
+
+function readJsonFile(filePath) {
+  try {
+    const data = fs.readFileSync(filePath, 'utf8')
+    return JSON.parse(data)
+  } catch (err) {
+    console.error('Error reading or parsing the JSON file:', err)
+    throw err
+  }
 }
