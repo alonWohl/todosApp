@@ -3,16 +3,17 @@
     "_id": "t101",
     "txt": "Learn React 33",
     "priority": 3,
-    "isDone": true,
+    "isDone": false,
     "nextTodoId": "t102",
     "prevTodoId": "FMb6dO",
-    "updatedAt": 1732630426454
+    "updatedAt": 1732639282175
   },
   {
     "_id": "t102",
     "txt": "Master CSS 2",
     "priority": 7,
-    "isDone": true
+    "isDone": false,
+    "updatedAt": 1732639281612
   },
   {
     "_id": "t103",
@@ -27,33 +28,36 @@
     "_id": "t104",
     "txt": "Learn React 4",
     "priority": 8,
-    "isDone": true
+    "isDone": false,
+    "updatedAt": 1732639283345
   },
   {
     "_id": "t105",
     "txt": "Master CSS 5",
     "priority": 2,
-    "isDone": true,
-    "updatedAt": 1732630177943
+    "isDone": false,
+    "updatedAt": 1732639283872
   },
   {
     "_id": "t106",
     "txt": "Practice Redux 6",
     "priority": 4,
-    "isDone": false
+    "isDone": false,
+    "updatedAt": 1732639284754
   },
   {
     "_id": "t107",
     "txt": "Learn React 7",
     "priority": 9,
-    "isDone": true
+    "isDone": false,
+    "updatedAt": 1732639287233
   },
   {
     "_id": "t108",
     "txt": "Master CSS 8",
     "priority": 6,
-    "isDone": true,
-    "updatedAt": 1732630176483
+    "isDone": false,
+    "updatedAt": 1732639286788
   },
   {
     "_id": "t109",
@@ -65,7 +69,8 @@
     "_id": "t110",
     "txt": "Learn React 10",
     "priority": 10,
-    "isDone": true
+    "isDone": false,
+    "updatedAt": 1732639285970
   },
   {
     "_id": "t111",
@@ -83,7 +88,8 @@
     "_id": "t113",
     "txt": "Learn React 13",
     "priority": 7,
-    "isDone": true
+    "isDone": false,
+    "updatedAt": 1732639288371
   },
   {
     "_id": "t115",
