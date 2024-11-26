@@ -55,7 +55,7 @@ export function TodoEdit() {
       })
   }
 
-  const { txt, importance, isDone } = todoToEdit
+  const { txt, priority, isDone } = todoToEdit
 
   return (
     <section className="todo-edit">
@@ -63,8 +63,8 @@ export function TodoEdit() {
         <label htmlFor="txt">Text:</label>
         <input onChange={handleChange} value={txt} type="text" name="txt" id="txt" />
 
-        <label htmlFor="importance">Importance:</label>
-        <input onChange={handleChange} value={importance} type="number" name="importance" id="importance" />
+        <label htmlFor="priority">Priority:</label>
+        <input onChange={handleChange} value={priority} type="number" name="priority" id="priority" />
 
         <label htmlFor="isDone">isDone:</label>
         <input onChange={handleChange} value={isDone} type="checkbox" name="isDone" id="isDone" />

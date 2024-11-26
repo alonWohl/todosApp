@@ -6,7 +6,7 @@ export const todoService = {
   getById,
   remove,
   save,
-  getImportanceStats
+  getPriorityStats
 }
 
 let gTodos = utilService.readJsonFile('data/todo.json')
@@ -19,8 +19,8 @@ function query(filterBy = {}) {
     filteredTodos = filteredTodos.filter(todo => regExp.test(todo.txt))
   }
 
-  if (filterBy.importance) {
-    filteredTodos = filteredTodos.filter(todo => todo.importance >= filterBy.importance)
+  if (filterBy.priority) {
+    filteredTodos = filteredTodos.filter(todo => todo.priority >= filterBy.priority)
   }
 
   switch (filterBy.select) {
@@ -69,9 +69,9 @@ function save(todo) {
 
   return _saveTodosToFile().then(() => todo)
 }
-function getImportanceStats() {
-  const todoCountByImportanceMap = _getTodoCountByImportanceMap(gTodos)
-  return Object.entries(todoCountByImportanceMap).map(([key, value]) => ({ title: key, value }))
+function getPriorityStats() {
+  const todoCountByPriorityMap = _getTodoCountByPriorityMap(gTodos)
+  return Object.entries(todoCountByPriorityMap).map(([key, value]) => ({ title: key, value }))
 }
 
 function _getNextTodoId(todoId) {
@@ -86,11 +86,11 @@ function _getPrevTodoId(todoId) {
   return prevTodo._id
 }
 
-function _getTodoCountByImportanceMap(todos) {
+function _getTodoCountByPriorityMap(todos) {
   return todos.reduce(
     (map, todo) => {
-      if (todo.importance < 3) map.low++
-      else if (todo.importance < 7) map.normal++
+      if (todo.priority < 3) map.low++
+      else if (todo.priority < 7) map.normal++
       else map.urgent++
       return map
     },

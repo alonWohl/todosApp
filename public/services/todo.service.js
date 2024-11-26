@@ -1,4 +1,4 @@
-const BASE_URL = 'api/todo'
+const BASE_URL = '/api/todo/'
 
 export const todoService = {
   query,
@@ -8,7 +8,7 @@ export const todoService = {
   getEmptyTodo,
   getDefaultFilter,
   getFilterFromSearchParams,
-  getImportanceStats
+  getPriorityStats
 }
 
 function query(filterBy = {}) {
@@ -16,24 +16,24 @@ function query(filterBy = {}) {
 }
 
 function get(todoId) {
-  return axios.get(TODO_KEY + todoId).then(res => res.data)
+  return axios.get(BASE_URL + todoId).then(res => res.data)
 }
 
 function remove(todoId) {
-  return axios.delete(TODO_KEY + todoId)
+  return axios.delete(BASE_URL + todoId)
 }
 
 function save(todo) {
   const method = todo._id ? 'put' : 'post'
-  return axios[method](BASE_URL, bug).then(res => res.data)
+  return axios[method](BASE_URL, todo).then(res => res.data)
 }
 
-function getEmptyTodo(txt = '', importance = 5) {
-  return { txt, importance, isDone: false }
+function getEmptyTodo(txt = '', priority = 5) {
+  return { txt, priority, isDone: false }
 }
 
 function getDefaultFilter() {
-  return { txt: '', importance: 0 }
+  return { txt: '', priority: 0 }
 }
 
 function getFilterFromSearchParams(searchParams) {
@@ -45,23 +45,23 @@ function getFilterFromSearchParams(searchParams) {
   return filterBy
 }
 
-function getImportanceStats() {
+function getPriorityStats() {
   return axios.query(TODO_KEY).then(todos => {
-    const todoCountByImportanceMap = _getTodoCountByImportanceMap(todos)
-    const data = Object.keys(todoCountByImportanceMap).map(speedName => ({ title: speedName, value: todoCountByImportanceMap[speedName] }))
+    const todoCountByPriorityMap = _getTodoCountByPriorityMap(todos)
+    const data = Object.keys(todoCountByPriorityMap).map(speedName => ({ title: speedName, value: todoCountByPriorityMap[speedName] }))
     return data
   })
 }
 
-function _getTodoCountByImportanceMap(todos) {
-  const todoCountByImportanceMap = todos.reduce(
+function _getTodoCountByPriorityMap(todos) {
+  const todoCountByPriorityMap = todos.reduce(
     (map, todo) => {
-      if (todo.importance < 3) map.low++
-      else if (todo.importance < 7) map.normal++
+      if (todo.priority < 3) map.low++
+      else if (todo.priority < 7) map.normal++
       else map.urgent++
       return map
     },
     { low: 0, normal: 0, urgent: 0 }
   )
-  return todoCountByImportanceMap
+  return todoCountByPriorityMap
 }

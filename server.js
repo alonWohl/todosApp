@@ -12,7 +12,7 @@ app.use(express.json())
 app.get('/api/todo', (req, res) => {
   const filterBy = {
     txt: req.query.txt || '',
-    severity: +req.query.importance || 0,
+    priority: +req.query.priority || 0,
     labels: req.query.select || 'all'
   }
 
